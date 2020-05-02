@@ -1,0 +1,79 @@
+\section{Solution Approach}
+
+To solve this problem, I decided to use the \href{https://stable-baselines.readthedocs.io/en/master/}{stable-baselines} implementation of GAIL, as this is by far the most mature and complete RL library out there. Unfortunately, this would turn out to be a bad decision, as it is undocumented that GAIL is no longer well supported by the team, as they are looking to move away from IL in general.
+
+To get an expert policy $\pi^*_{expert}$ on any basic grid-world environment similar to the one I defined in the previous section, I decided to use and tune the stable-baselines PPO2 algorithm to be the expert \cite{PPO2}. To do this, optimized its hyperparameters, resulting in the parameters found in Tables 
+\ref{t: ppo2_hyperparameters_1} - \ref{t: ppo2_hyperparameters_3}. 
+
+\begin{table}
+    \caption{Final \texttt{PPO2} Hyperparameters Pt 1.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{cliprange} & \texttt{ent\_coef} & \texttt{gamma} & \texttt{lam} & \texttt{learning\_rate}\\ \hline
+        0.2 & 0 & 0.99 & 0.95 & 0.00015 \\ \hline
+    \end{tabular}
+    \label{t: ppo2_hyperparameters_1}
+\end{table}
+
+\begin{table}
+    \caption{Final \texttt{PPO2} Hyperparameters Pt 2.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{n\_steps} & \texttt{n\_timesteps} & \texttt{nminibatches} & \texttt{noptepochs}\\ \hline
+        128 & 200000 & 32 & 10\\ \hline
+    \end{tabular}
+    \label{t: ppo2_hyperparameters_2}
+\end{table}
+
+\begin{table}
+    \caption{Final \texttt{PPO2} Hyperparameters Pt 3.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{policy} & \texttt{eval\_freq}\\ \hline
+        MlpPolicy & 500 \\ \hline
+    \end{tabular}
+    \label{t: ppo2_hyperparameters_3}
+\end{table}
+
+From this, I could then generate 100 trajectories from $\pi^*_{expert}$ using rollout simulations (while recording state and action pairs for each episode) and store them for the training process in GAIL.
+
+Then, using the expert trajectory dataset, trained a GAIL learner using the "optimized" (see results section for discussion on this) hyperparameters given in Tables \ref{t: gail_hyperparameters_1} - \ref{t: gail_hyperparameters_3}.
+
+From this, I could evaluate the learner's ability to gather reward on the original gridworld environment using sufficient (500) Monte Carlo policy evaluations.
+
+
+\begin{table}
+    \caption{Final \texttt{GAIL} Hyperparameters Pt 1.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{policy} & \texttt{n\_timesteps} & \texttt{eval\_freq}\\ \hline
+        MlpPolicy & 1e6 & 1e4 \\ \hline
+    \end{tabular}
+    \label{t: gail_hyperparameters_1}
+\end{table}
+
+\begin{table}
+    \caption{Final \texttt{GAIL} Hyperparameters Pt 2.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{hidden\_size\_adversary} & \texttt{adversary\_entcoeff} & \texttt{d\_step}\\ \hline
+        100 & 1e-3 & 10 \\ \hline
+    \end{tabular}
+    \label{t: gail_hyperparameters_2}
+\end{table}
+
+\begin{table}
+    \caption{Final \texttt{GAIL} Hyperparameters Pt 3.}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        \texttt{d\_stepsize} & \texttt{normalize} & \texttt{gamma}\\ \hline
+        1e-4 & False & 0.99\\ \hline
+    \end{tabular}
+    \label{t: gail_hyperparameters_3}
+\end{table}

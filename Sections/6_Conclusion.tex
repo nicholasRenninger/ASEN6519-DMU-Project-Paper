@@ -1,0 +1,9 @@
+\section{Conclusion}
+
+As can be seen in the Results section, this experiment with GAIL went worse than expected. While eventually I had a very functional and configurable experimentation environment in jupyter, I was ultimately unable to overcome the technical difficulties associated with the GAIL implementation to make it work. Here, we did not accomplish nearly as much as was desired owing both to Imitation learning algorithm's notorious training difficulty, as well as numerous technical problems with the stable-baselines imitation learner, as well as the interactions between gym-minigrid and stable-baselines.
+
+It should be noted that the idea to use PPO2 to learn the expert policy worked exceptionally well, but due to the limited state representation that I used here, it was not able to generalize to new, similar environments.
+
+Additionally, one thing you will notice is that in the final version of the GAIL policy video on my github page is that GAIL seems to have learned to move around the environment and approach the goal before leaving and making a circle, always avoiding lava. Thus, my hunch is that there is still some sort of bug with the handling of the terminal states of the MDP, causing the demonstration data manager to mangle the final state of the demonstration, such that the GAIL learner is implictly "told" to not enter the goal state.
+
+Regardless, this project was successful in the sense that there is now, for the first time, a connection between the major RL libraries to study task-based LfD in a (potentially partially observable) gridworld environment. I am sure that the technical difficulties can be ironed out with some time off away from the problem -- check my github out later for updated results!
